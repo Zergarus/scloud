@@ -1,7 +1,7 @@
 <?
 
 $a = new \Models\Article\Article();
-$arResult = $a->getArticle();
+$arResult = $a->getArticles();
 
 ?>
 
@@ -11,7 +11,7 @@ $arResult = $a->getArticle();
         <? foreach ($arResult as $id => $item): ?>
             <div class="news_element">
                 <h2>
-                    <a href="#" id="<?= $id ?>"><?= $item["ARTICLE_TITLE"] ?></a>
+                    <a href="/detail/index.php?mode=detail&id=<?=$id?>" id="<?= $id ?>"><?= $item["ARTICLE_TITLE"] ?></a>
                 </h2>
                 <div class="news_text">
                     <p>
