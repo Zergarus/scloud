@@ -8,6 +8,9 @@ $arResult = $a->getArticles();
 <div class="news_wrapper">
     <h1>Новостная лента</h1>
     <div class="news_list">
+        <div class="add_user_button">
+            <a href="/new-article/"><button>Добавить новость</button></a>
+        </div>
         <? foreach ($arResult as $id => $item): ?>
             <div class="news_element">
                 <h2>

@@ -64,7 +64,7 @@ class Article
 
     }
 
-    public function fupdateArticle()
+    public function updateArticle()
     {
 
     }
