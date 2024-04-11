@@ -19,7 +19,7 @@ class Article
         $mysql = new \mysqli("localhost", "root", "", "news");
         $mysql->query("SET NAMES 'utf8'");
 
-        $result = $mysql->query("SELECT * FROM news_list");
+        $result = $mysql->query("SELECT * FROM 'news_list'");
 
         if ($result->num_rows > 0) {
             while ($arArticle = $result->fetch_assoc()) {
@@ -61,16 +61,31 @@ class Article
 
     public function removeArticle()
     {
+        $mysql = new \mysqli("localhost", "root", "", "news");
+        $mysql->query("SET NAMES 'utf8'");
 
+        $result = $mysql->query("DELETE FROM `news_list` WHERE id=" . $this->id) ;
+
+        $mysql->close();
     }
 
-    public function updateArticle()
+    public function updateArticle($data)
     {
+        $mysql = new \mysqli("localhost", "root", "", "news");
+        $mysql->query("SET NAMES 'utf8'");
 
+        $result = $mysql->query("UPDATE `news_list` SET title = ".$data["title"].", announce = ".$data["announce"].", text = ".$data["text"].", WHERE id=" . $this->id) ;
+
+        $mysql->close();
     }
 
-    public function addArticle()
+    public function addArticle($data)
     {
+        $mysql = new \mysqli("localhost", "root", "", "news");
+        $mysql->query("SET NAMES 'utf8'");
 
+        $result = $mysql->query("INSERT INTO `news_list` (`title`, `announce`, `text`) VALUES ('" . $data["title"] . "', '" . $data["announce"] . "', '" . $data["text"] . "')");
+
+        $mysql->close();
     }
 }

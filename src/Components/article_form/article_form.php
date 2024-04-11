@@ -1,8 +1,18 @@
-
 <?
-echo "<pre>";
-var_dump($_REQUEST);
-echo "</pre>";
+if (empty($_POST)) {
+    $_POST = json_decode(file_get_contents('php://input'), true);
+}
+if (is_countable($_POST)){
+    $article = new \Models\Article\Article();
+    $article->addArticle($_POST);
+}
+
+
+
+//$log = date('Y-m-d H:i:s') . ' ' . print_r($_POST, true);
+//
+//file_put_contents(__DIR__ . '/log.txt', $log . PHP_EOL, FILE_APPEND);
+
 ?>
 
 <div class="news_wrapper">
@@ -23,7 +33,7 @@ echo "</pre>";
                     <textarea id="text"></textarea>
                 </div>
                 <div class="add_user_button">
-                   <button id="but" type="submit">Добавить новость</button>
+                    <button id="but" type="submit">Добавить новость</button>
                 </div>
             </form>
         </div>
@@ -33,21 +43,21 @@ echo "</pre>";
 <script type="module">
 
     const form = document.getElementById("edit_form");
-    form.addEventListener("submit", async function (event){
+    form.addEventListener("submit", function (event) {
         event.preventDefault();
         let title = document.getElementById("title").value;
         let announce = document.getElementById("announce").value;
         let text = document.getElementById("text").value;
 
 
-        const url = "index.php";
+        const url = window.location.href;
         const data = {
             title: title,
             announce: announce,
             text: text,
         };
 
-        await fetch(url, {
+        fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
