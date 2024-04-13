@@ -1,7 +1,12 @@
 <?
 
-$a = new \Models\Article\Article();
-$arResult = $a->getArticles();
+$articles = new \Models\Article\Article();
+if (isset($_GET["page"])) {
+    $arResult = $articles->getPage($_GET["page"], 5);
+} else {
+    $arResult = $articles->getPage(1, 5);
+}
+
 
 if (isset($_GET["id"]) && $_GET["mode"] == "delete") {
     $a = new \Models\Article\Article($_GET["id"]);
@@ -36,5 +41,11 @@ if (isset($_GET["id"]) && $_GET["mode"] == "delete") {
                 </div>
             </div>
         <? endforeach; ?>
+
+        <div style="text-align: center">
+            <?php for ($pageNum = 1; $pageNum <= $articles->getPagesCount(5); $pageNum++): ?>
+                    <a href="/index.php<?= $pageNum === 1 ? '' : '?page=' . $pageNum ?>"><?= $pageNum ?></a>
+            <?php endfor; ?>
+        </div>
     </div>
 </div>

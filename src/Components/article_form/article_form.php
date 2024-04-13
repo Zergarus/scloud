@@ -5,6 +5,10 @@ if (empty($_POST)) {
 
 if (is_countable($_POST)) {
     if ($_POST["mode"] == "create"){
+
+        $log = date('Y-m-d H:i:s') . ' ' . print_r($_POST, true);
+        file_put_contents(__DIR__ . '/log.txt', $log . PHP_EOL, FILE_APPEND);
+
         $article = new \Models\Article\Article();
         $article->addArticle($_POST);
     } else {
@@ -20,9 +24,6 @@ if (isset($_GET["mode"]) ?? $_GET["mode"] == "edit") {
     $arResult = $article->getArticleById();
 }
 
-//$log = date('Y-m-d H:i:s') . ' ' . print_r($_POST, true);
-//
-//file_put_contents(__DIR__ . '/log.txt', $log . PHP_EOL, FILE_APPEND);
 
 ?>
 <? if ($edtiMode) {?>
@@ -54,8 +55,8 @@ if (isset($_GET["mode"]) ?? $_GET["mode"] == "edit") {
     <div class="news_wrapper">
         <h1>Добавить новость</h1>
         <div class="news_list">
-            <div class="form" mode="create">
-                <form id="form">
+            <div class="form">
+                <form id="form" mode="create">
                     <div class="input">
                         <label for="title">Название</label>
                         <input id="title" type="text" value="">

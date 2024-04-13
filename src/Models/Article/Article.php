@@ -11,27 +11,7 @@ class Article
     {
         $this->id = $id;
         $this->mode = $mode;
-    }
-
-    public function getArticles()
-    {
-        $arResult = [];
-        $mysql = new \mysqli("localhost", "root", "", "news");
-        $mysql->query("SET NAMES 'utf8'");
-
-        $result = $mysql->query("SELECT * FROM news_list");
-
-        if ($result->num_rows > 0) {
-            while ($arArticle = $result->fetch_assoc()) {
-                $arResult[$arArticle["id"]]["ARTICLE_TITLE"] = $arArticle["title"];
-                $arResult[$arArticle["id"]]["ARTICLE_ANNOUNCE"] = $arArticle["announce"];
-                $arResult[$arArticle["id"]]["ARTICLE_TEXT"] = $arArticle["text"];
-            }
-        }
-
-        $mysql->close();
-
-        return $arResult;
+        $this->db = new \mysqli("localhost", "root", "", "news");
     }
 
     public function getArticleById()
@@ -41,10 +21,9 @@ class Article
             die();
         }
         $arResult = [];
-        $mysql = new \mysqli("localhost", "root", "", "news");
-        $mysql->query("SET NAMES 'utf8'");
 
-        $result = $mysql->query("SELECT * FROM news_list WHERE id=" . $this->id);
+        $this->db->query("SET NAMES 'utf8'");
+        $result = $this->db->query("SELECT * FROM news_list WHERE id=" . $this->id);
 
         if ($result->num_rows > 0) {
             while ($arArticle = $result->fetch_assoc()) {
@@ -54,39 +33,63 @@ class Article
             }
         }
 
-        $mysql->close();
 
         return $arResult;
     }
 
     public function removeArticle()
     {
-        $mysql = new \mysqli("localhost", "root", "", "news");
-        $mysql->query("SET NAMES 'utf8'");
 
-        $result = $mysql->query("DELETE FROM `news_list` WHERE id=" . $this->id) ;
+        $this->db->query("SET NAMES 'utf8'");
 
-        $mysql->close();
+        $result = $this->db->query("DELETE FROM `news_list` WHERE id=" . $this->id);
+
+
     }
 
     public function updateArticle($data)
     {
-        $mysql = new \mysqli("localhost", "root", "", "news");
-        $mysql->query("SET NAMES 'utf8'");
 
-        $asd = $mysql->query("UPDATE news_list SET title = ".$data["title"].", announce = ".$data["announce"].", text = ".$data["text"]." WHERE id=" . $this->id) ;
+        $this->db->query("SET NAMES 'utf8'");
+
+        $asd = $this->db->query("UPDATE news_list SET title = " . $data["title"] . ", announce = " . $data["announce"] . ", text = " . $data["text"] . " WHERE id=" . $this->id);
         $log = date('Y-m-d H:i:s') . ' ' . print_r($asd, true);
         file_put_contents(__DIR__ . '/log.txt', $log . PHP_EOL, FILE_APPEND);
-        $mysql->close();
+
     }
 
     public function addArticle($data)
     {
-        $mysql = new \mysqli("localhost", "root", "", "news");
-        $mysql->query("SET NAMES 'utf8'");
+        $this->db->query("SET NAMES 'utf8'");
+        $result = $this->db->query("INSERT INTO `news_list` (`title`, `announce`, `text`) VALUES ('" . $data["title"] . "', '" . $data["announce"] . "', '" . $data["text"] . "')");
+    }
 
-        $result = $mysql->query("INSERT INTO `news_list` (`title`, `announce`, `text`) VALUES ('" . $data["title"] . "', '" . $data["announce"] . "', '" . $data["text"] . "')");
 
-        $mysql->close();
+    public function getPagesCount(int $itemsPerPage): int
+    {
+        $result = $this->db->query('SELECT COUNT(*) AS cnt FROM news_list')->fetch_array();
+        return ceil($result["cnt"] / $itemsPerPage);
+    }
+
+    public function getPage(int $pageNum, int $itemsPerPage)
+    {
+        $arResult = [];
+
+        $result = $this->db->query(
+            sprintf(
+                'SELECT * FROM `%s` ORDER BY id DESC LIMIT %d OFFSET %d;',
+                "news_list",
+                $itemsPerPage,
+                ($pageNum - 1) * $itemsPerPage
+            ),
+        );
+        if ($result->num_rows > 0) {
+            while ($arArticle = $result->fetch_assoc()) {
+                $arResult[$arArticle["id"]]["ARTICLE_TITLE"] = $arArticle["title"];
+                $arResult[$arArticle["id"]]["ARTICLE_ANNOUNCE"] = $arArticle["announce"];
+                $arResult[$arArticle["id"]]["ARTICLE_TEXT"] = $arArticle["text"];
+            }
+        }
+        return $arResult;
     }
 }
