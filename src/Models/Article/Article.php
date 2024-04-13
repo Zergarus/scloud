@@ -19,7 +19,7 @@ class Article
         $mysql = new \mysqli("localhost", "root", "", "news");
         $mysql->query("SET NAMES 'utf8'");
 
-        $result = $mysql->query("SELECT * FROM 'news_list'");
+        $result = $mysql->query("SELECT * FROM news_list");
 
         if ($result->num_rows > 0) {
             while ($arArticle = $result->fetch_assoc()) {
@@ -74,8 +74,9 @@ class Article
         $mysql = new \mysqli("localhost", "root", "", "news");
         $mysql->query("SET NAMES 'utf8'");
 
-        $result = $mysql->query("UPDATE `news_list` SET title = ".$data["title"].", announce = ".$data["announce"].", text = ".$data["text"].", WHERE id=" . $this->id) ;
-
+        $asd = $mysql->query("UPDATE news_list SET title = ".$data["title"].", announce = ".$data["announce"].", text = ".$data["text"]." WHERE id=" . $this->id) ;
+        $log = date('Y-m-d H:i:s') . ' ' . print_r($asd, true);
+        file_put_contents(__DIR__ . '/log.txt', $log . PHP_EOL, FILE_APPEND);
         $mysql->close();
     }
 

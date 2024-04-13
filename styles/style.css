@@ -72,3 +72,7 @@ h2 a {
     min-height: 221px;
     height: 221px;
 }
+.edit_buttons a {
+    text-decoration: none;
+    color: hsl(228, 5%, 80%);
+}
