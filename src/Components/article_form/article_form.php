@@ -5,10 +5,6 @@ if (empty($_POST)) {
 
 if (is_countable($_POST)) {
     if ($_POST["mode"] == "create") {
-
-        $log = date('Y-m-d H:i:s') . ' ' . print_r($_POST, true);
-        file_put_contents(__DIR__ . '/log.txt', $log . PHP_EOL, FILE_APPEND);
-
         $article = new \Models\Article\Article();
         $article->addArticle($_POST);
     } elseif (ctype_digit($_GET["id"])) {
