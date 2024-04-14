@@ -4,21 +4,21 @@ if (empty($_POST)) {
 }
 
 if (is_countable($_POST)) {
-    if ($_POST["mode"] == "create"){
+    if ($_POST["mode"] == "create") {
 
         $log = date('Y-m-d H:i:s') . ' ' . print_r($_POST, true);
         file_put_contents(__DIR__ . '/log.txt', $log . PHP_EOL, FILE_APPEND);
 
         $article = new \Models\Article\Article();
         $article->addArticle($_POST);
-    } else {
+    } elseif (ctype_digit($_GET["id"])) {
         $article = new \Models\Article\Article($_GET["id"]);
         $article->updateArticle($_POST);
     }
 
 }
 $edtiMode = false;
-if (isset($_GET["mode"]) ?? $_GET["mode"] == "edit") {
+if (isset($_GET["mode"]) ?? $_GET["mode"] == "edit" && ctype_digit($_GET["id"])) {
     $edtiMode = true;
     $article = new \Models\Article\Article($_GET['id'], $_GET["mode"]);
     $arResult = $article->getArticleById();
@@ -26,7 +26,7 @@ if (isset($_GET["mode"]) ?? $_GET["mode"] == "edit") {
 
 
 ?>
-<? if ($edtiMode) {?>
+<? if ($edtiMode) { ?>
     <div class="news_wrapper">
         <h1>Добавить новость</h1>
         <div class="news_list">
@@ -34,15 +34,15 @@ if (isset($_GET["mode"]) ?? $_GET["mode"] == "edit") {
                 <form id="form" mode="edit">
                     <div class="input">
                         <label for="title">Название</label>
-                        <input id="title" type="text" value="<?=$arResult["ARTICLE_TITLE"]?>">
+                        <input id="title" type="text" value="<?= $arResult["ARTICLE_TITLE"] ?>">
                     </div>
                     <div class="input">
                         <label for="announce">Анонс</label>
-                        <textarea id="announce"><?=$arResult["ARTICLE_ANNOUNCE"]?></textarea>
+                        <textarea id="announce"><?= $arResult["ARTICLE_ANNOUNCE"] ?></textarea>
                     </div>
                     <div class="input">
                         <label for="text">Текст</label>
-                        <textarea id="text"><?=$arResult["ARTICLE_TEXT"]?></textarea>
+                        <textarea id="text"><?= $arResult["ARTICLE_TEXT"] ?></textarea>
                     </div>
                     <div class="add_user_button">
                         <button type="submit">Сохранить новость</button>

@@ -8,7 +8,7 @@ if (isset($_GET["page"])) {
 }
 
 
-if (isset($_GET["id"]) && $_GET["mode"] == "delete") {
+if (isset($_GET["id"]) && $_GET["mode"] == "delete" && ctype_digit($_GET["id"])) {
     $a = new \Models\Article\Article($_GET["id"]);
     $a->removeArticle();
     header("Location: http://news/index.php", true, 301);
@@ -41,10 +41,9 @@ if (isset($_GET["id"]) && $_GET["mode"] == "delete") {
                 </div>
             </div>
         <? endforeach; ?>
-
         <div style="text-align: center">
             <?php for ($pageNum = 1; $pageNum <= $articles->getPagesCount(5); $pageNum++): ?>
-                    <a href="/index.php<?= $pageNum === 1 ? '' : '?page=' . $pageNum ?>"><?= $pageNum ?></a>
+                <a href="/index.php<?= $pageNum === 1 ? '' : '?page=' . $pageNum ?>"><?= $pageNum ?></a>
             <?php endfor; ?>
         </div>
     </div>

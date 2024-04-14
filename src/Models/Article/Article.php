@@ -11,7 +11,8 @@ class Article
     {
         $this->id = $id;
         $this->mode = $mode;
-        $this->db = new \mysqli("localhost", "root", "", "news");
+        $this->db = new \PDO("mysql:host=localhost;dbname=news", "root", "");
+
     }
 
     public function getArticleById()
@@ -20,76 +21,106 @@ class Article
             http_response_code(404);
             die();
         }
-        $arResult = [];
 
-        $this->db->query("SET NAMES 'utf8'");
-        $result = $this->db->query("SELECT * FROM news_list WHERE id=" . $this->id);
-
-        if ($result->num_rows > 0) {
-            while ($arArticle = $result->fetch_assoc()) {
-                $arResult["ARTICLE_TITLE"] = $arArticle["title"];
-                $arResult["ARTICLE_ANNOUNCE"] = $arArticle["announce"];
-                $arResult["ARTICLE_TEXT"] = $arArticle["text"];
+        try {
+            $sql = "SELECT * FROM news_list WHERE id=:id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":id", $this->id);
+            $stmt->execute();
+            if ($stmt->rowCount() > 0) {
+                while ($arArticle = $stmt->fetch()) {
+                    $arResult["ARTICLE_TITLE"] = $arArticle["title"];
+                    $arResult["ARTICLE_ANNOUNCE"] = $arArticle["announce"];
+                    $arResult["ARTICLE_TEXT"] = $arArticle["text"];
+                }
             }
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/logDB.txt', $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
-
 
         return $arResult;
     }
 
     public function removeArticle()
     {
-
-        $this->db->query("SET NAMES 'utf8'");
-
-        $result = $this->db->query("DELETE FROM `news_list` WHERE id=" . $this->id);
-
-
+        try {
+            $sql = "DELETE FROM `news_list` WHERE id=:id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":id", $this->id);
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/logDB.txt', $e->getMessage() . PHP_EOL, FILE_APPEND);
+        }
     }
 
     public function updateArticle($data)
     {
-
-        $this->db->query("SET NAMES 'utf8'");
-
-        $asd = $this->db->query("UPDATE news_list SET title = " . $data["title"] . ", announce = " . $data["announce"] . ", text = " . $data["text"] . " WHERE id=" . $this->id);
-        $log = date('Y-m-d H:i:s') . ' ' . print_r($asd, true);
-        file_put_contents(__DIR__ . '/log.txt', $log . PHP_EOL, FILE_APPEND);
-
+        try {
+            $sql = "UPDATE news_list SET title = :title, announce = :announce, text = :text WHERE id = :userid";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":title", $data["title"]);
+            $stmt->bindValue(":announce", $data["announce"]);
+            $stmt->bindValue(":text", $data["text"]);
+            $stmt->bindValue(":userid", $this->id);
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/logDB.txt', $e->getMessage() . PHP_EOL, FILE_APPEND);
+        }
     }
 
     public function addArticle($data)
     {
-        $this->db->query("SET NAMES 'utf8'");
-        $result = $this->db->query("INSERT INTO `news_list` (`title`, `announce`, `text`) VALUES ('" . $data["title"] . "', '" . $data["announce"] . "', '" . $data["text"] . "')");
+        try {
+            $sql = "INSERT INTO `news_list` (`title`, `announce`, `text`) VALUES (:title, :announce, :text)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(":title", $data["title"]);
+            $stmt->bindValue(":announce", $data["announce"]);
+            $stmt->bindValue(":text", $data["text"]);
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/logDB.txt', $e->getMessage() . PHP_EOL, FILE_APPEND);
+        }
     }
 
 
-    public function getPagesCount(int $itemsPerPage): int
+    public function getPagesCount(int $itemsPerPage): int|bool
     {
-        $result = $this->db->query('SELECT COUNT(*) AS cnt FROM news_list')->fetch_array();
-        return ceil($result["cnt"] / $itemsPerPage);
+        try {
+            $sql = "SELECT COUNT(*) AS cnt FROM news_list";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            return ceil($stmt->fetch()["cnt"] / $itemsPerPage);
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/logDB.txt', $e->getMessage() . PHP_EOL, FILE_APPEND);
+            return false;
+        }
+
     }
 
     public function getPage(int $pageNum, int $itemsPerPage)
     {
         $arResult = [];
-
-        $result = $this->db->query(
-            sprintf(
+        try {
+            $sql = sprintf(
                 'SELECT * FROM `%s` ORDER BY id DESC LIMIT %d OFFSET %d;',
                 "news_list",
                 $itemsPerPage,
                 ($pageNum - 1) * $itemsPerPage
-            ),
-        );
-        if ($result->num_rows > 0) {
-            while ($arArticle = $result->fetch_assoc()) {
-                $arResult[$arArticle["id"]]["ARTICLE_TITLE"] = $arArticle["title"];
-                $arResult[$arArticle["id"]]["ARTICLE_ANNOUNCE"] = $arArticle["announce"];
-                $arResult[$arArticle["id"]]["ARTICLE_TEXT"] = $arArticle["text"];
+            );
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                while ($arArticle = $stmt->fetch()) {
+                    $arResult[$arArticle["id"]]["ARTICLE_TITLE"] = $arArticle["title"];
+                    $arResult[$arArticle["id"]]["ARTICLE_ANNOUNCE"] = $arArticle["announce"];
+                    $arResult[$arArticle["id"]]["ARTICLE_TEXT"] = $arArticle["text"];
+                }
             }
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/logDB.txt', $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
+
         return $arResult;
     }
 }

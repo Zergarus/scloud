@@ -1,7 +1,7 @@
 <?
 
-$a = new \Models\Article\Article($_GET["id"], $_GET["mode"]);
-$arResult = $a->getArticleById();
+$article = new \Models\Article\Article($_GET["id"], $_GET["mode"]);
+$arResult = $article->getArticleById();
 
 ?>
 
